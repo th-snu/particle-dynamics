@@ -1,0 +1,36 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "C/C++: g++ build active file",
+			"command": "/usr/bin/g++",
+			"args": [
+				// "${file}",
+				// "${fileDirname}/${fileBasenameNoExtension}",
+				"-g",
+				"${workspaceFolder}/examples/main.cpp",
+				"${workspaceFolder}/particles/particle.cpp",
+				"${workspaceFolder}/particles/particle_system.cpp",
+				"${workspaceFolder}/forces/constantf.cpp",
+				"${workspaceFolder}/forces/gravity.cpp",
+				"${workspaceFolder}/forces/spring.cpp",
+				"${workspaceFolder}/forces/drag.cpp",
+				"${workspaceFolder}/simulation.cpp",
+				"-o",
+				"${workspaceFolder}/particle-dynamics",
+				"-lglut",
+				"-lGL",
+				"-lGLU",
+				"-lGLEW",
+			], 
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		}
+	]
+}
