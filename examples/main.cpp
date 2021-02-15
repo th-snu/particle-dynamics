@@ -18,7 +18,7 @@
 int frame = 0;
 double accel = 10.0;
 
-unsigned timeStep = 30;
+unsigned timeStep = 3;
 bool play = false;
 
 GLdouble rotMatrix[16] =
@@ -155,6 +155,30 @@ void display() {
 		}
 		glPopMatrix();
 	}
+
+	glBegin(GL_LINES);
+	for(int i = 0; i < 90; i++){
+			double pos00 = sim.ps.get(i%9 + (i/9)*10)->pos[0];
+			double pos01 = sim.ps.get(i%9 + (i/9)*10)->pos[1];
+			double pos02 = sim.ps.get(i%9 + (i/9)*10)->pos[2];
+			glVertex3d(pos00, pos01, pos02);
+
+			double pos10 = sim.ps.get(i%9 + (i/9)*10 + 1)->pos[0];
+			double pos11 = sim.ps.get(i%9 + (i/9)*10 + 1)->pos[1];
+			double pos12 = sim.ps.get(i%9 + (i/9)*10 + 1)->pos[2];
+			glVertex3d(pos10, pos11, pos12);
+
+			double pos20 = sim.ps.get((i%9)*10 + (i/9))->pos[0];
+			double pos21 = sim.ps.get((i%9)*10 + (i/9))->pos[1];
+			double pos22 = sim.ps.get((i%9)*10 + (i/9))->pos[2];
+			glVertex3d(pos20, pos21, pos22);
+
+			double pos30 = sim.ps.get((i%9 + 1)*10 + (i/9))->pos[0];
+			double pos31 = sim.ps.get((i%9 + 1)*10 + (i/9))->pos[1];
+			double pos32 = sim.ps.get((i%9 + 1)*10 + (i/9))->pos[2];
+			glVertex3d(pos30, pos31, pos32);
+	}
+	glEnd();
 	
 	glPopMatrix();
 
@@ -197,7 +221,11 @@ void keyboard(unsigned char key, int x, int y) {
 void Timer(int unused)
 {
 	if (play){
-		sim.euler_step(timeStep * 0.001);
+		sim.euler_step(timeStep * 0.01);
+		for(int i = 0; i < 10; i++){
+			sim.ps.get(i)->pos = Eigen::Vector3d((i%10) * 10, 0, (i/10) * 10);
+			sim.ps.get(i)->vel = Eigen::Vector3d(0, 0, 0);
+		}
 	}
 
 	glutPostRedisplay();
@@ -208,12 +236,14 @@ int main(int argc, char** argv) {
 	std::vector<Particle *>ps;
 	std::vector<Force *>fs;
 	for(int i = 0; i < 100; i++){
-		ps.push_back(new Particle(Eigen::Vector3d((i%10) * 10, 0, (i/10) * 10), Eigen::Vector3d(0, 100, 0), Eigen::Vector3d(0, 0, 0), i%10 + i/10 + 1));
+		ps.push_back(new Particle(Eigen::Vector3d((i%10) * 10, 0, (i/10) * 10), Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0), 10));
 	}
-	fs.push_back(new Gravity(ps, Eigen::Vector3d(0, -10, 0)));
-	fs.push_back(new ConstantF(ps, Eigen::Vector3d(5, 0, 0)));
-	for(int i = 0; i < 25; i++){
-		fs.push_back(new Spring(ps[i*4], ps[i*4 + 1], 3, 10, 0.1));
+	fs.push_back(new Gravity(ps, Eigen::Vector3d(0, -3, 0)));
+	fs.push_back(new ConstantF(ps, Eigen::Vector3d(0, 0, -50)));
+	fs.push_back(new Drag(ps, 1));
+	for(int i = 0; i < 90; i++){
+		fs.push_back(new Spring(ps[i%9 + (i/9)*10], ps[i%9 + (i/9)*10 + 1], 10, 10, 0.2));
+		fs.push_back(new Spring(ps[(i%9) * 10 + (i/9)], ps[(i%9 + 1) * 10 + (i/9)], 10, 10, 0.2));
 	}
 	
 	for(Particle *p : ps)
