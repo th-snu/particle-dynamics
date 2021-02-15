@@ -15,4 +15,5 @@ public:
 private:
     std::vector<Eigen::Vector3d> particle_deriv();
     void compute_forces();
+    void compute_constraints();
 };
